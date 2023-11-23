@@ -1,0 +1,135 @@
+// Lottoziehung
+// In diesem Programm werden vom User 6 Tips für eine Lottoziehung abgefragt, anschließend werden 6 zufällige Zalen generiert und mit den Tips abgeglichen.
+// Anhand der richtigen Tips wird eine Gewinnsumme ausgegeben.
+// Geschrieben von: Laurenz Vogel, Leif Bremer 
+// 21.11.2023 Version 0.3
+
+
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+short getShortMinMax(char text[], short min, short max);
+
+//Hauptprogramm
+
+int main() {
+
+	//Initialisierung der Variablen
+
+	short eingabe[6] = { 0,0,0,0,0,0 };										//Array für die vom User eingegebenen Tips
+	short ziehung[6] = { 0,0,0,0,0,0 };										//Array für die Ziehungen
+	short ziehungsprobe;													//Variable zur zwischenspeicherung der Eingabewerte und Ziehung
+	short doppelte = 0;														//Variable zum Prüfen der Doppelten
+	short richtige = 0;														//Variable zum Zählen der Richtigen
+	short min = 1;															//Variable für minimalen Wert
+	short max = 49;															//Variable für maximalen Wert
+	int gewinn[] = { 0, 0, 5, 50, 1000, 50000, 1000000 };					//Array zum Speichern der Gewinnsumme
+
+	char tippabfrage[6][41] = {
+		"Bitte geben Sie Ihren ersten Tipp ab\0",
+		"Bitte geben Sie Ihren zweite Tipp ab\0",
+		"Bitte geben Sie Ihren dritten Tipp ab\0",
+		"Bitte geben Sie Ihren vierten Tipp ab\0",
+		"Bitte geben Sie Ihren fünften Tipp ab\0",
+		"Bitte geben Sie Ihren sechsten Tipp ab\0" };						//Array für die Abfrage der Tipps(Hochzählend)
+
+	srand(time(0));
+
+	printf("Hallo, dieses Programm ist eine Lotto Simulation\n");
+	printf("Bitte geben Sie 6 sich nicht wiederholende Tipps, für zahlen zwischen 1 und 49, ab\n");
+
+
+
+	for (int i = 0; i < 6; i++) {
+
+
+		do {
+
+			doppelte = 0;
+
+			ziehungsprobe = getShortMinMax(tippabfrage[i], min, max);
+			for (int a = 0; a < 6; a++) {
+				if (ziehungsprobe == eingabe[a]) {
+					doppelte = 1;
+				}
+
+			}
+
+			char tippabfrage[] = "Keine doppelten Zahlen";
+
+		} while (doppelte == 1);
+
+		eingabe[i] = ziehungsprobe;
+	}
+	printf("Ihre Tipps sind: ");
+	for (int i = 0; i < 6; i++) printf("%d ", eingabe[i]);
+
+	//Ziehung der 6 Zahlen
+	
+	printf("\nDie gezogenen Zahlen sind: ");
+	for (int i = 0; i < 6; i++) {													//Schleife für 6 Ziehungen
+
+		do {
+			doppelte = 0;
+			ziehungsprobe = rand() % 49 + 1;										//Funktion zur bestimmung von zufälligen Zahlen
+
+			for (int n = 0; n < 6; n++) {
+				if (ziehung[n] == ziehungsprobe) doppelte = 1;						//Wenn doppelt dann wiederhole die Schleife
+
+			}
+		} while (doppelte == 1);
+
+		ziehung[i] = ziehungsprobe;
+		printf("%u ", ziehung[i]);
+	}
+
+	//Vergleich der Arrays
+
+	for (int i = 0; i < 6; i++) {
+
+		for (int n = 0; n < 6; n++) {
+
+			if (eingabe[i] == ziehung[n]) richtige += 1;
+		}
+	}
+	printf("\nSie haben %u richtige", richtige);
+
+	printf(", und %u Euro gewonnen.", gewinn[richtige]);
+
+	return 0;
+}
+
+
+//Funktion zur Annahme von Tips vom User
+
+short getShortMinMax(
+	char text[], short min, short max)
+{
+	short value;														//Variable für die Annahme des Tps
+	int finished = 0;													//variable zur Bestätigung eines erfolgreichen Tips
+	char ch;															//Variable zur Überprüfung von ungültigen Zeichen hinter der Zahl
+	int retVal;															//Variable zur überprüfung von scanf
+
+	do {
+
+		printf("%s: ", text);
+		ch = '\0';
+		retVal = scanf("%hd%c", &value, &ch);
+
+		if (retVal != 2) printf("Das war keine korrekte Zahl!\n");
+		else if (ch != '\n') printf("Unerwartete Zeichen hinter der Zahl!\n");
+		else if (value < min || value > max) printf("Die Zahl ist nicht zwischen 1 und 49!\n");
+		else finished = 1;
+
+
+		while (ch != '\n') retVal = scanf("%c", &ch);
+
+
+	} while (!finished);
+
+	return value;
+
+}
+
